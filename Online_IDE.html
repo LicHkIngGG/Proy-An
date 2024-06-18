@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Online IDE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .wrapper {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h2>Online IDE</h2>
+        <form id="codeForm">
+            <div class="form-group">
+                <label for="code">Código</label>
+                <textarea name="code" id="code" rows="10" cols="50" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="input">Input</label>
+                <textarea name="input" id="input" rows="10" cols="50" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="lang">Language</label>
+                <select name="lang" id="lang">
+                    <option value="C">C</option>
+                    <option value="Java">Java</option>
+                    <option value="Python">Python</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Compile With Input</label>
+                <input type="radio" name="inputRadio" id="inputRadioTrue" value="true"> Yes
+                <input type="radio" name="inputRadio" id="inputRadioFalse" value="false" checked> No
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn">Ejecutar</button>
+            </div>
+        </form>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('codeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            let code = document.getElementById('code').value;
+            let input = document.getElementById('input').value;
+            let lang = document.getElementById('lang').value;
+            let inputRadio = document.querySelector('input[name="inputRadio"]:checked').value;
+
+            fetch('/compilecode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    code: code,
+                    input: input,
+                    lang: lang,
+                    inputRadio: inputRadio
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let outputDiv = document.getElementById('output');
+                if (data.output) {
+                    outputDiv.innerHTML = `<pre>${data.output}</pre>`;
+                } else if (data.error) {
+                    outputDiv.innerHTML = `<pre>${data.error}</pre>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
